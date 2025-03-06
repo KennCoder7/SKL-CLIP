@@ -1,0 +1,66 @@
+work_dir: /data/wangkun/project/work_dir/LowQSAR/HCN/ntu60ANDpku51/cs-fusion-1031-fusionlabel86
+#weights: /data/wangkun/project/work_dir/LowQSAR/HCN/ntu60ANDpku51-mini20/cs-fusion-1029-1/best_model.pt
+#phase: 'extract_feature'
+#phase: 'test'
+
+# feeder
+feeder: feeder.feeder_skeleton_fusion.Feeder
+train_feeder_args:
+  data_path: /data/wangkun/project/datasets/NTU_dataset/ntu/preprocessed_NTU60_CS.npz
+  dataset: 'ntu'
+  split: train
+  target_data_path: /data/wangkun/project/datasets/PKUMMD/pku_part1/preprocessed_N51_CS.npz
+  target_dataset: 'pkummd'
+  align_st: False
+  strong_aug_method: ''
+  window_size: 64
+  random_shear: 0.3
+  resize_crop: True
+  p_interval: [0.5, 1]
+  get_pairs: False
+  preprocess: False
+#  mini: 20
+  fusion_dataset: True
+  source_label_path: '/data/wangkun/project/datasets/NTU_dataset/label_list_ntu60.npy'
+  target_label_path: '/data/wangkun/project/datasets/PKUMMD/pku_part1/label_list.npy'
+
+test_feeder_args:
+  data_path: /data/wangkun/project/datasets/NTU_dataset/ntu/preprocessed_NTU60_CS.npz
+  dataset: 'ntu'
+  split: test
+  target_data_path: /data/wangkun/project/datasets/PKUMMD/pku_part1/preprocessed_N51_CS.npz
+  target_dataset: 'pkummd'
+  window_size: 64
+  resize_crop: True
+  p_interval: [0.95]
+  preprocess: False
+#  mini: 20
+  fusion_dataset: True
+  source_label_path: '/data/wangkun/project/datasets/NTU_dataset/label_list_ntu60.npy'
+  target_label_path: '/data/wangkun/project/datasets/PKUMMD/pku_part1/label_list.npy'
+
+# model
+model: net.HCN.Model
+model_args:
+  in_channel: 3
+  num_joint: 25
+  num_person: 2
+  num_class: 86
+  out_channel: 128
+  window_size: 64
+
+weight_decay: 0.0001
+base_lr: 0.001
+optimizer: 'Adam'
+lr_decay_type: 'cosine'
+end_cosine_lr: 0.0001
+device: [0]
+batch_size: 128
+test_batch_size: 32
+num_epoch: 80
+#warmup_epoch: 10
+seed: 1
+eval_interval: 5
+save_interval: 50
+bool_save_model: True
+bool_save_checkpoint: False

@@ -1,0 +1,101 @@
+work_dir: work_dir/SkeleCLIP-parallel/ntu60ANDpku51/cs-stgcn-baseline
+#weights: /data/wangkun/project/work_dir/LowQSAR/SkeleCLIP/ntu60ANDpku51/cs-1031-v3-HCN-skeleclip-froster/best_model.pt
+#phase: 'test'
+#ignore_weights: [fc_s, fc_t]
+#phase: 'extract_feature'
+# feeder
+feeder: feeder.feeder_skeleton_da.Feeder
+train_feeder_args:
+  data_path: /data/wangkun/project/datasets/NTU_dataset/ntu/preprocessed_NTU60_CS.npz
+  dataset: 'ntu'
+  split: train
+  support_data_path: datasets/preprocessed_N51_ALL.npz
+  support_dataset: 'pkummd'
+  align_st: False
+  strong_aug_method: ''
+  window_size: 64
+  random_shear: 0.3
+  resize_crop: True
+  p_interval: [0.5, 1]
+  get_pairs: True
+  preprocess: False
+#  mini: 10
+
+#  backup: True
+#  debug: True
+test_feeder_args:
+  data_path: /data/wangkun/project/datasets/NTU_dataset/ntu/preprocessed_NTU60_CS.npz
+  dataset: 'ntu'
+  split: test
+  window_size: 64
+  resize_crop: True
+  p_interval: [0.95]
+  preprocess: False
+#  mini: 10
+
+support_test_feeder_args:
+  data_path: datasets/preprocessed_N51_CS.npz
+  dataset: 'pkummd'
+  split: test
+  window_size: 64
+  resize_crop: True
+  p_interval: [ 0.95 ]
+  preprocess: False
+  get_pairs: False
+
+#  mini: 10
+
+# model
+model: net.SkeleCLIP.Model
+model_args:
+  encoder_args:
+    backbone: net.st_gcn.Model
+    in_channels: 3
+    num_class: 1
+    dropout: 0.5
+    base_channel: 64
+    output_channel: 512
+    edge_importance_weighting: True
+    graph_args:
+      layout: 'ntu'
+      strategy: 'spatial'
+    return_ft: True
+  shared_encoder: False
+#  pretrained_path: '/data/wangkun/project/work_dir/LowQSAR/HCN/ntu60ANDpku51-nimi20/cs-fusion-1030-fusionlabel/best_model.pt'
+  target_label_info: 'ntu60'
+  support_label_info: 'pku51'
+  extra_fc: False
+  extra_data_view: False
+  extra_txt_view: False
+  freeze_text_encoder: False
+#  unfreeze_text_layer: ['11']
+  froster: True
+#  feature_dim: 256
+#  latent_dim: 512
+  baseline: True
+
+weight_decay: 0.0001
+#weight_decay: 0.
+#base_lr: 0.01
+base_lr: 0.001
+#warmup_epoch: 10
+#optimizer: 'Adam'
+#optimizer: 'SGD'
+optimizer: 'Mix'
+lr_decay_type: 'cosine'
+end_cosine_lr: 0.0001
+#end_cosine_lr: 1e-5
+#lr_decay_type: 'step'
+#step: [25, 50]
+#step: [30]
+device: [0]
+batch_size: 128
+test_batch_size: 64
+num_epoch: 80
+seed: 1
+eval_interval: 5
+save_interval: 25
+bool_save_model: False
+bool_save_checkpoint: False
+
+w_cls: 0.5

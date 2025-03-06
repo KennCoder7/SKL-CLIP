@@ -1,0 +1,51 @@
+work_dir: /data/wangkun/project/work_dir/LowQSAR/HCN/posetics12/1019-5
+
+# feeder
+feeder: feeder.feeder_skeleton.Feeder
+train_feeder_args:
+  data_path: /data/wangkun/project/datasets/Posetics/posetics2ntu/preprocessed_posetics2ntu.npz
+  dataset: 'preprocessed_posetics3d'
+  split: train
+  window_size: 64
+  random_rot: False
+  random_shear: 0.3
+  resize_crop: True
+  random_crop: False
+  p_interval: [0.5, 1]
+  preprocess: False
+test_feeder_args:
+  data_path: /data/wangkun/project/datasets/Posetics/posetics2ntu/preprocessed_posetics2ntu.npz
+  dataset: 'preprocessed_posetics3d'
+  split: test
+  resize_crop: True
+  random_crop: False
+  window_size: 64
+  p_interval: [0.95]
+  preprocess: False
+
+# model
+model: net.HCN.Model
+model_args:
+  in_channel: 3
+  num_joint: 17
+  num_person: 2
+  num_class: 12
+  out_channel: 128
+  window_size: 64
+
+
+weight_decay: 0.0001
+base_lr: 0.001
+optimizer: 'Adam'
+lr_decay_type: 'cosine'
+end_cosine_lr: 0.0001
+device: [0]
+batch_size: 128
+test_batch_size: 32
+num_epoch: 50
+#warmup_epoch: 10
+seed: -1
+eval_interval: 5
+save_interval: 50
+bool_save_model: True
+bool_save_checkpoint: False

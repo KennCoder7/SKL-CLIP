@@ -1,0 +1,120 @@
+work_dir: /data/wangkun/project/work_dir/LowQSAR/SkeleCLIP-parallel-UDA/pku51ANDntu51/cs-1108-pseudo-sharecls-weighted_pseudo-Xdann
+#weights: /data/wangkun/project/work_dir/LowQSAR/SkeleCLIP-parallel/ntu60ANDpku51/cs-1104-baseline/best_model.pt
+#phase: 'test'
+#ignore_weights: [fc_s, fc_t]
+#phase: 'extract_feature'
+# feeder
+feeder: feeder.feeder_skeleton_parallel.Feeder
+train_feeder_args:
+  data_path: /data/wangkun/project/datasets/PKUMMD/pku_part1/preprocessed_N51_CS.npz
+  dataset: 'pkummd'
+  split: train
+  support_data_path: /data/wangkun/project/datasets/NTU_dataset/ntu/ntu2pkummd/preprocessed_NTU60_N51.npz
+  support_dataset: 'ntu'
+  align_st: False
+  strong_aug_method: ''
+  window_size: 64
+  random_shear: 0.3
+  resize_crop: True
+  p_interval: [0.5, 1]
+  get_pairs: True
+  preprocess: False
+#  mini: 10
+
+#  backup: True
+#  debug: True
+test_feeder_args:
+  data_path: /data/wangkun/project/datasets/PKUMMD/pku_part1/preprocessed_N51_CS.npz
+  dataset: 'pkummd'
+  split: test
+  window_size: 64
+  resize_crop: True
+  p_interval: [ 0.95 ]
+  preprocess: False
+  get_pairs: False
+
+#  mini: 10
+
+support_test_feeder_args:
+  data_path: /data/wangkun/project/datasets/NTU_dataset/ntu/ntu2pkummd/preprocessed_NTU60_CS.npz
+  dataset: 'ntu'
+  split: test
+  window_size: 64
+  resize_crop: True
+  p_interval: [0.95]
+  preprocess: False
+  get_pairs: False
+#  mini: 10
+
+# model
+model: net.SkeleCLIP.Model
+model_args:
+  encoder_args:
+    backbone: net.HCN.Model
+    in_channel: 3
+    num_joint: 25
+    num_person: 2
+    out_channel: 128
+    window_size: 64
+    return_ft: True
+
+#  encoder_args:
+#    backbone: net.st_gcn.Model
+#    in_channels: 3
+#    num_class: 1
+#    dropout: 0.5
+#    base_channel: 16
+#    edge_importance_weighting: True
+#    graph_args:
+#      layout: 'ntu'
+#      strategy: 'spatial'
+#    return_ft: True
+  shared_encoder: True
+  target_label_info: 'pku51'
+  support_label_info: 'pku51'
+  extra_fc: False
+  extra_data_view: True
+  extra_txt_view: True
+  freeze_text_encoder: False
+#  unfreeze_text_layer: ['11', '10', '9', '8', '7', '6']
+  froster: True
+#  feature_dim: 256
+#  latent_dim: 512
+  text_prompt_type: 'fixed'
+  shared_cls: True
+
+weight_decay: 0.0001
+#weight_decay: 0.
+#base_lr: 0.01
+base_lr: 0.001
+#warmup_epoch: 10
+#optimizer: 'Adam'
+#optimizer: 'SGD'
+optimizer: 'Mix'
+lr_decay_type: 'cosine'
+end_cosine_lr: 0.0001
+#end_cosine_lr: 1e-5
+#lr_decay_type: 'step'
+#step: [25, 50]
+#step: [30]
+device: [0]
+batch_size: 128
+test_batch_size: 64
+num_epoch: 80
+seed: 1
+eval_interval: 5
+save_interval: 25
+bool_save_model: False
+bool_save_checkpoint: False
+
+w_cls: 0.1
+w_clip: 0.1
+w_scl: 0.1
+w_froster: 0.2
+w_dann: 0.
+
+clip_loss_type: 'ce'
+pseudo_label: True
+pseudo_epoch: 10
+w_pseudo: 0.1
+weighted_pseudo_label: True

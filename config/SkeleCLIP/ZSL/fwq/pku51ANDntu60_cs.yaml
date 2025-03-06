@@ -1,0 +1,110 @@
+work_dir: work_dir/SkeleCLIP-parallel-ZSL/pku51ANDntu60/cs-1114-u12-shiftgcn
+#weights: /data/wangkun/project/work_dir/LowQSAR/SkeleCLIP-parallel-ZSL/pku51ANDntu60/cv-1114-u12_t/best_model_gzsl.pt
+#phase: 'test'
+# feeder
+feeder: feeder.feeder_skeleton_parallel.Feeder
+train_feeder_args:
+  data_path: datasets/preprocessed_N51_CS.npz
+  dataset: 'pkummd'
+  split: train
+  support_data_path: datasets/preprocessed_NTU60_ALL.npz
+  support_dataset: 'ntu'
+  align_st: False
+  strong_aug_method: ''
+  window_size: 64
+  random_shear: 0.3
+  resize_crop: True
+  p_interval: [0.5, 1]
+  get_pairs: True
+  preprocess: False
+  unseen_list: [3,7,11,15,19,21,25,31,33,36,43,48]
+
+zsl_test_feeder_args:
+  data_path: datasets/preprocessed_N51_CS.npz
+  dataset: 'pkummd'
+  split: test
+  window_size: 64
+  resize_crop: True
+  p_interval: [0.95]
+  preprocess: False
+  unseen_list: [3,7,11,15,19,21,25,31,33,36,43,48]
+  unseen: True
+
+gzsl_test_feeder_args:
+  data_path: datasets/preprocessed_N51_CS.npz
+  dataset: 'pkummd'
+  split: test
+  window_size: 64
+  resize_crop: True
+  p_interval: [ 0.95 ]
+  preprocess: False
+  get_pairs: False
+#  mini: 10
+
+# model
+model: net.SkeleCLIP.Model
+model_args:
+  encoder_args:
+    backbone: net.shiftgcn.Model
+    num_class: 1
+    num_point: 25
+    num_person: 2
+    graph: net.shiftgcn.Graph
+    graph_args:
+      type: 'ntu'
+      labeling_mode: 'spatial'
+    return_ft: True
+
+  shared_encoder: True
+  target_label_info: 'pku51'
+  support_label_info: 'ntu60'
+  extra_fc: True
+  feature_dim: 256
+  latent_dim: 512
+  extra_data_view: True
+  extra_txt_view: True
+  freeze_text_encoder: False
+#  unfreeze_text_layer: ['11', '10', '9', '8', '7', '6']
+  froster: True
+#  feature_dim: 256
+#  latent_dim: 512
+  text_prompt_type: 'fixed'
+  unseen_class: [3,7,11,15,19,21,25,31,33,36,43,48]
+
+
+weight_decay: 0.0001
+#weight_decay: 0.
+#base_lr: 0.01
+base_lr: 0.001
+warmup_epoch: 5
+#optimizer: 'Adam'
+#optimizer: 'SGD'
+optimizer: 'Mix'
+lr_decay_type: 'cosine'
+end_cosine_lr: 0.0001
+#end_cosine_lr: 1e-5
+#lr_decay_type: 'step'
+#step: [25, 50]
+#step: [30]
+device: [0]
+batch_size: 128
+test_batch_size: 64
+num_epoch: 80
+seed: 1
+eval_interval: 5
+save_interval: 25
+bool_save_model: False
+bool_save_checkpoint: False
+
+w_cls: 0
+w_clip: 0.1
+w_scl: 0.1
+w_froster: 0.2
+w_dann: 0
+
+
+clip_loss_type: 'ce'
+w_balance: 1.0
+w_balance_s: 0.1
+novelty_threshold: 0.032
+
